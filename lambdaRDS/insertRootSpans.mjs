@@ -1,4 +1,5 @@
 const insertRootSpans = async (client, rootSpans) => {
+  console.log('Inserting root spans into RDS');
   await client.query('BEGIN');
   try {
     for (const rootSpan of rootSpans) {

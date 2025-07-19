@@ -44,6 +44,7 @@ const fetchRootSpans = async (api_key) => {
 
 // This is the formatting for our rootSpans where we want the content from the last object in an array.
 const formatRootSpans = (data) => {
+  console.log('Formatting root spans')
   return data.data.projects.edges.flatMap((project) => {
     return project.node.spans.edges.map((span) => {
       

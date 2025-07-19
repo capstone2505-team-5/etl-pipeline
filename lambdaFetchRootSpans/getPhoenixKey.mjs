@@ -12,6 +12,7 @@ const getPhoenixKey = async (event) => {
 
   let response;
 
+  console.log('Fetching Phoenix API key')
   try {
     response = await client.send(
       new GetSecretValueCommand({
@@ -24,7 +25,7 @@ const getPhoenixKey = async (event) => {
     // https://docs.aws.amazon.com/secretsmanager/latest/apireference/API_GetSecretValue.html
     throw error;
   }
-
+  
   const secret = response.SecretString;
   return JSON.parse(secret)["PHOENIX_API_KEY"]
 };
