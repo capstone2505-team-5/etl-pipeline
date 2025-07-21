@@ -1,6 +1,10 @@
 import { SecretsManagerClient, GetSecretValueCommand } from "@aws-sdk/client-secrets-manager";
 
 const getPhoenixKey = async (event) => {
+  if (process.env.NODE_ENV !== 'production') {
+    return process.env.PHOENIX_API_KEY; // load from local .env
+  }
+
   const secret_name = process.env.PHOENIX_API_KEY_SECRET_NAME;
 
   if (!secret_name) throw new Error("Missing PHOENIX_API_KEY_SECRET_NAME env variable");

@@ -1,5 +1,5 @@
 const insertRootSpans = async (client, rootSpans) => {
-  console.log('Inserting root spans into RDS');
+  console.log('Inserting root spans into database');
   await client.query('BEGIN');
   try {
     for (const rootSpan of rootSpans) {
@@ -17,9 +17,8 @@ const insertRootSpans = async (client, rootSpans) => {
     await client.query('ROLLBACK');
     throw e;
   } finally { 
-    client.release();
+    client.end();
   }
-
 }
 
 export default insertRootSpans

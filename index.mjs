@@ -1,8 +1,7 @@
 import fetchRootSpans from "./lambdaFetchRootSpans/fetchRootSpans.mjs";
 import getPhoenixKey from "./lambdaFetchRootSpans/getPhoenixKey.mjs";
 import insertRootSpans from "./lambdaRDS/insertRootSpans.mjs";
-import { Client } from 'pg';
-
+import createDbClient from "./lambdaRDS/createDbClient.mjs";
 
 export const handler = async (event) => {
   const phoenixKey = await getPhoenixKey();
@@ -11,18 +10,15 @@ export const handler = async (event) => {
 
   if(!rootSpans) console.log('No root spans found')
 
-  const client = new Client({
-    host: process.env.PGHOST,
-    port: parseInt(process.env.PGPORT || "5432", 10),
-    user: process.env.PGUSER,
-    password: process.env.PGPASSWORD,
-    database: process.env.PGDATABASE,
-    ssl: {
-      rejectUnauthorized: false,
-    },
-  });
+  const client = createDbClient();
+  await client.connect();
+  await insertRootSpans(client, rootSpans)
 
-  insertRootSpans(client, rootSpans)
-
-  return rootSpans;
+  return {
+    statusCode: 200,
+    body: JSON.stringify(rootSpans),
+    headers: {
+      'Content-Type': 'application/json'
+    }
+  };
 }

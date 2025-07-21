@@ -1,9 +1,9 @@
 const queryAPI = async (query, api_key) => {
   const body = { query };
 
-  console.log(api_key)
+  console.log('Initiating API Query');
   try {
-    const response = await fetch(process.env.PHOENIX_API_URL+ '/graphql', {
+    const response = await fetch(process.env.PHOENIX_API_URL + '/graphql', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -22,6 +22,7 @@ const queryAPI = async (query, api_key) => {
       throw new Error(`GraphQL error: ${JSON.stringify(data.errors)}`);
     }
 
+    console.log('API query successful.')
     return data;
   } catch (error) {
     console.error('Error in queryAPI:', error);
