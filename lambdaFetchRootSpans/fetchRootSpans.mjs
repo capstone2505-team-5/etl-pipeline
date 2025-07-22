@@ -1,16 +1,16 @@
 import queryAPI from "./queryAPI.mjs";
 
-const fetchRootSpans = async (api_key) => {
+const fetchRootSpans = async (api_key, startTime) => {
   try {
     console.log('Fetching root spans');
   
     const query = 
-    `query RootSpans {
+    `query RootSpans($startTime: DateTime!, $endTime: DateTime!) {
       projects (filter: {col: name, value: "recipe-chatbot-oneTrace"}) {
         edges {
           node {
             name
-            spans(rootSpansOnly: true) {
+            spans(rootSpansOnly: true, timeRange: {start: $startTime, end:$endTime}) {
               edges {
                 node {
                   context {
@@ -34,7 +34,7 @@ const fetchRootSpans = async (api_key) => {
       }
     }`
 
-    const data = await queryAPI(query, api_key);
+    const data = await queryAPI(query, api_key, startTime);
     const formattedData = formatRootSpans(data);
     return formattedData;
   } catch (error) {

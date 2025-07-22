@@ -1,5 +1,13 @@
-const queryAPI = async (query, api_key) => {
-  const body = { query };
+const queryAPI = async (query, api_key, startTime) => {
+  const endTime = new Date(); // This will just take the time right now
+
+  const body = {
+    query,
+    variables: {
+      startTime: startTime.toISOString(),
+      endTime: endTime.toISOString()
+    }
+  };
 
   console.log('Initiating API Query');
   try {

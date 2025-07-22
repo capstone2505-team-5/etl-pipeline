@@ -16,8 +16,6 @@ const insertRootSpans = async (client, rootSpans) => {
     console.log('Root span data addition failed.')
     await client.query('ROLLBACK');
     throw e;
-  } finally { 
-    client.end();
   }
 }
 

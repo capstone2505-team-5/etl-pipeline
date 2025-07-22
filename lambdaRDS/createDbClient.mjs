@@ -12,7 +12,7 @@ const createDbClient = () => {
     database: isProduction ? process.env.PGDATABASE : process.env.LOCALPGDATABASE,
     ssl: isProduction
       ? { rejectUnauthorized: false }  // use SSL in prod (RDS)
-      : undefined,                     // no SSL locally
+      : undefined                     // no SSL locally
   });
 
   return client
