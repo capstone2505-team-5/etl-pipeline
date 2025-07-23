@@ -21,7 +21,13 @@ brew install aws-sam-cli
 }
 
 4. Navigate to root directory and run:
-sam local start-api --port 8080 --env-vars env.json
+npm run build
+npm run dev
 
 5. Use postman or curl to ensure it's working correctly:
 curl http://localhost:8080/fetchRootSpans
+
+How to deploy:
+
+Still figuring the best way out....
+For now you can zip and upload

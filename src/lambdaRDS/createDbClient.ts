@@ -1,6 +1,6 @@
 import { Client } from 'pg';
 
-const createDbClient = () => {
+const createDbClient = (): Client => {
   const isProduction = process.env.NODE_ENV === 'production';
 
   console.log('Creating db client');

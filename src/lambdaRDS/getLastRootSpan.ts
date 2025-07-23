@@ -1,4 +1,6 @@
-const getLatestRootSpanStartTime = async (client) => {
+import { Client } from 'pg';
+
+const getLatestRootSpanStartTime = async (client: Client): Promise<Date> => {
   console.log('Fetching latest root span start time.');
 
   try {
@@ -9,7 +11,7 @@ const getLatestRootSpanStartTime = async (client) => {
     let date;
     if (rawDate) {
       date = new Date(rawDate);
-      date.setDate(date.getDate() - 1); // slight overlap
+      date.setMinutes(date.getMinutes() - 5); // 5-minute overlap
     } else {
       date = new Date();
       date.setFullYear(date.getFullYear() - 25);

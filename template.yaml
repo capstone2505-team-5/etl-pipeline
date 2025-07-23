@@ -4,8 +4,9 @@ Resources:
   FetchRootSpans:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: index.handler  # or whatever your entry file + handler is
+      Handler: dist/index.handler
       Runtime: nodejs22.x
+      Timeout: 30
       Environment:
         Variables:
           NODE_ENV: ""
