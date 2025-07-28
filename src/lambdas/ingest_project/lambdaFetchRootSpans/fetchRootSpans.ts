@@ -1,8 +1,8 @@
-import queryAPI from "./queryAPI.js";
+import queryAPI from "../../../shared/queryAPI.js";
 import formatRootSpans from "./formatRootSpans.js";
 
 
-const fetchRootSpans = async (api_key: string, startTime: Date) => {
+const fetchRootSpans = async (api_key: string) => {
   try {
     console.log('Fetching root spans');
   
@@ -40,7 +40,7 @@ const fetchRootSpans = async (api_key: string, startTime: Date) => {
       }
     }`
 
-    const data = await queryAPI(query, api_key, startTime);
+    const data = await queryAPI(query, api_key);
     const formattedData = formatRootSpans(data);
     return formattedData;
   } catch (error) {

@@ -9,7 +9,7 @@ export interface RootSpan {
   spanName: string | null;
 }
 
-export interface GraphQLResponse {
+export interface GraphQLRootSpanResponse {
   data?: {
     projects?: {
       edges?: Array<{

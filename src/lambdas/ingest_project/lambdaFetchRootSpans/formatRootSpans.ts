@@ -1,6 +1,6 @@
-import { GraphQLResponse, RootSpan, ProjectEdge, SpanEdge } from "../types/types";
+import { GraphQLRootSpanResponse, RootSpan, ProjectEdge, SpanEdge } from "../types/types";
 
-const formatRootSpans = (data: GraphQLResponse): RootSpan[] => {
+const formatRootSpans = (data: GraphQLRootSpanResponse): RootSpan[] => {
   try {
     // Parse json and format by spanKind
     const allSpans = parseAndFormatSpans(data);
@@ -17,7 +17,7 @@ const formatRootSpans = (data: GraphQLResponse): RootSpan[] => {
   }
 };
 
-const parseAndFormatSpans = (data: GraphQLResponse): (RootSpan | null)[] => {
+const parseAndFormatSpans = (data: GraphQLRootSpanResponse): (RootSpan | null)[] => {
   if (!data?.data?.projects?.edges) {
     console.log('No projects data found');
     return [];

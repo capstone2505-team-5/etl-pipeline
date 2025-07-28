@@ -1,25 +1,41 @@
 AWSTemplateFormatVersion: '2010-09-09'
 Transform: AWS::Serverless-2016-10-31
+
+Globals:
+  Function:
+    Runtime: nodejs22.x
+    Timeout: 30
+    Environment:
+      Variables:
+        NODE_ENV: ""
+        LOCALPGUSER: ""
+        LOCALPGPASSWORD: ""
+        LOCALPGDATABASE: ""
+        LOCALPGHOST: ""
+        LOCALPGPORT: ""
+        PHOENIX_API_KEY: ""
+        PHOENIX_API_URL: ""
+
 Resources:
   FetchRootSpans:
     Type: AWS::Serverless::Function
     Properties:
-      Handler: dist/index.handler
-      Runtime: nodejs22.x
-      Timeout: 30
-      Environment:
-        Variables:
-          NODE_ENV: ""
-          LOCALPGUSER: ""
-          LOCALPGPASSWORD: ""
-          LOCALPGDATABASE: ""
-          LOCALPGHOST: ""
-          LOCALPGPORT: ""
-          PHOENIX_API_KEY: ""
-          PHOENIX_API_URL: ""
+      Handler: dist/lambdas/ingest_project/index.handler
       Events:
         Api:
           Type: Api
           Properties:
             Path: /fetchRootSpans
             Method: GET
+
+  FetchProjects:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: dist/lambdas/entry/index.handler
+      Events:
+        Api:
+          Type: Api
+          Properties:
+            Path: /fetchAllProjects
+            Method: GET
+

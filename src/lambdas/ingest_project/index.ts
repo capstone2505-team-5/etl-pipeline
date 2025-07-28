@@ -1,8 +1,8 @@
 import { APIGatewayEvent, Context } from 'aws-lambda';
 import fetchRootSpans from "./lambdaFetchRootSpans/fetchRootSpans.js";
-import getPhoenixKey from "./lambdaFetchRootSpans/getPhoenixKey.js";
+import getPhoenixKey from "../../shared/getPhoenixKey.js";
 import insertRootSpans from "./lambdaRDS/insertRootSpans.js";
-import createDbClient from "./lambdaRDS/createDbClient.js";
+import createDbClient from "../../shared/createDbClient.js";
 import getLatestRootSpanStartTime from "./lambdaRDS/getLastRootSpan.js";
 
 export const handler = async (event: APIGatewayEvent) => {
@@ -15,7 +15,7 @@ export const handler = async (event: APIGatewayEvent) => {
     await client.connect();
     let latestRootSpanStartTime = await getLatestRootSpanStartTime(client);
 
-    const rootSpans = await fetchRootSpans(phoenixKey, latestRootSpanStartTime);
+    const rootSpans = await fetchRootSpans(phoenixKey);
 
     if (!rootSpans || rootSpans.length === 0) {
       console.log('No root spans found');
