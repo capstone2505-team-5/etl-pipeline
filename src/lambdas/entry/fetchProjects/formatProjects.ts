@@ -49,11 +49,18 @@ const parseAndFormatProjects = (data: GraphQLProjectResponse): (Project | null)[
       return [];
     }
 
+    const projectEndTime = project?.node?.endTime;
+    if (!projectEndTime) {
+      console.warn('Project end time missing, skipping');
+      return [];
+    }
+
     return {
       id: projectId,
       name: projectName,
       createdAt: projectCreatedAt,
-      traceCount: projectTraceCount
+      rootSpanCount: projectTraceCount,
+      updatedAt: projectEndTime
     };
   });
 }
@@ -66,7 +73,8 @@ const filterProjects = (projects: (Project | null)[]): Project[] => {
       project.id &&
       project.name &&
       project.createdAt &&
-      (project.traceCount !== undefined && project.traceCount !== null)
+      project.updatedAt &&
+      (project.rootSpanCount !== undefined && project.rootSpanCount !== null)
     );
   });
 };

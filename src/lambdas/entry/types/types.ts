@@ -2,7 +2,8 @@ export interface Project {
   id: string;
   name: string;
   createdAt: string;
-  traceCount: number;
+  rootSpanCount: number;
+  updatedAt: string;
 }
 
 export interface GraphQLProjectResponse {
@@ -14,6 +15,7 @@ export interface GraphQLProjectResponse {
           name?: string;
           createdAt?: string;
           traceCount?: number;
+          endTime?: string;
           };
       }>;
     };
@@ -26,5 +28,6 @@ export interface ProjectEdge {
     name?: string;
     createdAt?: string;
     traceCount?: number;
+    endTime?: string;
   };
 }

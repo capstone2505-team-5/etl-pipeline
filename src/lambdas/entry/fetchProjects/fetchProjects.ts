@@ -1,7 +1,8 @@
 import queryAPI from "../../../shared/queryAPI.js";
 import formatProjects from "./formatProjects.js";
+import { Project } from "../types/types.js";
 
-async function fetchProjects(phoenixKey: string): Promise<{ id: string }[]> {
+async function fetchProjects(phoenixKey: string): Promise<Project[]> {
   console.log('Fetching all projects');
 
   const query = `
@@ -9,10 +10,11 @@ async function fetchProjects(phoenixKey: string): Promise<{ id: string }[]> {
       projects {
         edges {
           node {
-            createdAt
+            id
             name
             traceCount
-            id
+            createdAt
+            endTime
           }
         }
       }

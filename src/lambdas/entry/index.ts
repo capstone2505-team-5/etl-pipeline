@@ -2,6 +2,7 @@ import { APIGatewayEvent } from "aws-lambda"
 import getPhoenixKey from "../../shared/getPhoenixKey.js";
 import createDbClient from "../../shared/createDbClient.js"
 import fetchProjects from "./fetchProjects/fetchProjects.js";
+import insertProjects from "./RDS/insertProjects.js";
 
 
 export const handler = async (event: APIGatewayEvent) => {
@@ -15,20 +16,18 @@ export const handler = async (event: APIGatewayEvent) => {
 
     let projects = await fetchProjects(phoenixKey);
 
-  //   const rootSpans = await fetchRootSpans(phoenixKey, latestRootSpanStartTime);
+    if (!projects || projects.length === 0) {
+      console.log('No projects found');
+      return {
+        statusCode: 204, // No Content
+        body: '',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      };
+    }
 
-  //   if (!rootSpans || rootSpans.length === 0) {
-  //     console.log('No root spans found');
-  //     return {
-  //       statusCode: 204, // No Content
-  //       body: '',
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //     };
-  //   }
-
-  //   await insertRootSpans(client, rootSpans)
+    await insertProjects(client, projects);
 
   //   return {
   //     statusCode: 200,
