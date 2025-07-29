@@ -31,3 +31,8 @@ export interface ProjectEdge {
     endTime?: string;
   };
 }
+
+export interface ProjectWithLastCursor {
+  name: string;
+  last_cursor: string | null;
+}

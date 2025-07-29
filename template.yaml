@@ -15,18 +15,20 @@ Globals:
         LOCALPGPORT: ""
         PHOENIX_API_KEY: ""
         PHOENIX_API_URL: ""
+        SPAN_INGESTION_FUNCTION_NAME: ""
 
 Resources:
   FetchRootSpans:
     Type: AWS::Serverless::Function
     Properties:
+      FunctionName: ingest-root-span-worker
       Handler: dist/lambdas/ingest_project/index.handler
       Events:
         Api:
           Type: Api
           Properties:
             Path: /fetchRootSpans
-            Method: GET
+            Method: POST
 
   FetchProjects:
     Type: AWS::Serverless::Function
