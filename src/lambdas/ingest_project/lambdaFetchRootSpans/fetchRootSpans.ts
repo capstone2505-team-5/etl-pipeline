@@ -1,22 +1,19 @@
 import queryAPI from "../../../shared/queryAPI.js";
+import extractPageInfo from "./extractPageInfo.js";
 import formatRootSpans from "./formatRootSpans.js";
 
 
-const fetchRootSpans = async (api_key: string) => {
+const fetchProject = async (api_key: string, projectName: string, lastCursor: string) => {
   try {
     console.log('Fetching root spans');
   
     const query = 
-    `query RootSpans($startTime: DateTime!, $endTime: DateTime!) {
-      projects {
+    `query GetRootSpans($projectName: String!, $lastCursor: String!) {
+      projects(filter: {col: name, value: $projectName}) {
         edges {
           node {
-            name
-            spans(
-              rootSpansOnly: true
-              timeRange: {start: $startTime, end: $endTime}
-              first: 2000
-            ) {
+            id
+            spans(rootSpansOnly: true, first: 500, after: $lastCursor) {
               edges {
                 node {
                   context {
@@ -32,7 +29,12 @@ const fetchRootSpans = async (api_key: string) => {
                   startTime
                   endTime
                   name
+                  spanKind
                 }
+              }
+              pageInfo {
+                endCursor
+                hasNextPage
               }
             }
           }
@@ -40,12 +42,18 @@ const fetchRootSpans = async (api_key: string) => {
       }
     }`
 
-    const data = await queryAPI(query, api_key);
+    const variables = {
+      projectName,
+      lastCursor
+    };
+
+    const data = await queryAPI(query, api_key, variables);
     const formattedData = formatRootSpans(data);
-    return formattedData;
+    const {endCursor, hasNextPage} = extractPageInfo(data);
+    return {rootSpans: formattedData, endCursor, hasNextPage};
   } catch (error) {
-    console.error('Error in fetchRootSpans:', error);
+    console.error('Error in fetchProject:', error);
   }
 };
 
-export default fetchRootSpans;
+export default fetchProject;

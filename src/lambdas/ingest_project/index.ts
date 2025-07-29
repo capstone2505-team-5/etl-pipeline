@@ -1,31 +1,61 @@
-import { APIGatewayEvent, Context } from 'aws-lambda';
-import fetchRootSpans from "./lambdaFetchRootSpans/fetchRootSpans.js";
+import { APIGatewayEvent } from 'aws-lambda';
 import getPhoenixKey from "../../shared/getPhoenixKey.js";
 import insertRootSpans from "./lambdaRDS/insertRootSpans.js";
 import createDbClient from "../../shared/createDbClient.js";
-import getLatestRootSpanStartTime from "./lambdaRDS/getLastRootSpan.js";
+import fetchProject from './lambdaFetchRootSpans/fetchRootSpans.js';
+import updateProjectCursor from './lambdaRDS/updateProjectCursor.js';
 
 export const processProjectIngestion = async (projectName: string, lastCursor: string) => {
   let client;
+  console.log('project name: ', projectName);
+  console.log('lastCursor: ', lastCursor);
 
   try {
     const phoenixKey = await getPhoenixKey();
 
     client = createDbClient();
     await client.connect();
-    
-    let latestRootSpanStartTime = await getLatestRootSpanStartTime(client);
 
-    const rootSpans = await fetchRootSpans(phoenixKey);
+    let hasNextPage = true;
+    let currentCursor = lastCursor;
+    let totalProcessed = 0;
+    const maxIterations = 100; // Prevent infinite loops
+    let iterations = 0;
 
-    if (!rootSpans || rootSpans.length === 0) {
-      console.log('No root spans found');
-      return { success: true, rootSpans: [], message: 'No root spans found' };
+    while (hasNextPage && iterations < maxIterations) {
+      iterations++;
+      console.log(`Fetching batch with cursor: ${currentCursor}`);
+      const project = await fetchProject(phoenixKey, projectName, currentCursor);
+
+      if (!project || project.rootSpans.length === 0) {
+        console.log('No root spans found');
+        break;
+      }
+  
+      await insertRootSpans(client, project.rootSpans);
+      totalProcessed += project.rootSpans.length;
+  
+      console.log(`Batch of ${project.rootSpans.length} root spans processed successfully`);
+
+      currentCursor = project.endCursor || ''; // Assuming fetchProject returns endCursor
+      if(currentCursor === '') break;
+
+      if (iterations >= maxIterations) {
+        console.warn(`Reached maximum iterations (${maxIterations}), stopping processing`);
+      }
+
+      //update the projects table with new last_cursor
+      hasNextPage = project.hasNextPage;
+      await updateProjectCursor(client, projectName, currentCursor);
     }
-
-    await insertRootSpans(client, rootSpans);
-
-    return { success: true, rootSpans, message: 'Root spans processed successfully' };
+    
+    console.log(`Total processed: ${totalProcessed} root spans`);
+    return { 
+      success: true, 
+      rootSpans: [], // Don't return all spans, just summary
+      totalProcessed,
+      message: `Successfully processed ${totalProcessed} root spans` 
+    };
 
   } catch (error: any) {
     console.error('Error in processProjectIngestion:', error);
@@ -38,7 +68,6 @@ export const processProjectIngestion = async (projectName: string, lastCursor: s
   }
 };
 
-// Updated handler
 export const handler = async (event: APIGatewayEvent) => {
   let projectName = '';
   let lastCursor = '';
@@ -60,20 +89,26 @@ export const handler = async (event: APIGatewayEvent) => {
     }
   }
 
+  // Validate required parameters
+  if (!projectName) {
+    return {
+      statusCode: 400,
+      body: JSON.stringify({ message: 'projectName is required' }),
+      headers: { 'Content-Type': 'application/json' }
+    };
+  }
+
   try {
     const result = await processProjectIngestion(projectName, lastCursor);
     
-    if (result.rootSpans.length === 0) {
-      return {
-        statusCode: 204, // No Content
-        body: '',
-        headers: { 'Content-Type': 'application/json' }
-      };
-    }
-
+    // Return success response with summary
     return {
       statusCode: 200,
-      body: JSON.stringify(result.rootSpans),
+      body: JSON.stringify({
+        success: result.success,
+        message: result.message,
+        totalProcessed: result.totalProcessed
+      }),
       headers: { 'Content-Type': 'application/json' }
     };
 
