@@ -17,7 +17,18 @@ brew install aws-sam-cli
    "LOCALPGPORT":"5432",
    "PHOENIX_API_KEY":"api_key",
    "PHOENIX_API_URL":"enpoint"
- }
+ },
+  "FetchProjects": {
+   "NODE_ENV":"development",
+   "LOCALPGUSER":"user",
+   "LOCALPGPASSWORD":"password",
+   "LOCALPGDATABASE":"db",
+   "LOCALPGHOST":"host.docker.internal",
+   "LOCALPGPORT":"5432",
+   "PHOENIX_API_KEY":"api_key",
+   "PHOENIX_API_URL":"enpoint"
+   "SPAN_INGESTION_FUNCTION_NAME":"ingest-root-span-worker"
+}
 }
 
 4. Navigate to root directory and run:
@@ -25,7 +36,7 @@ npm run build
 npm run dev
 
 5. Use postman or curl to ensure it's working correctly:
-curl http://localhost:8080/fetchRootSpans
+curl http://localhost:8080/fetchAllProjects
 
 How to deploy:
 
