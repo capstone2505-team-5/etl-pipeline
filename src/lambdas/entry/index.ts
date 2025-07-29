@@ -4,8 +4,8 @@ import getPhoenixKey from "../../shared/getPhoenixKey.js";
 import createDbClient from "../../shared/createDbClient.js"
 import fetchProjects from "./fetchProjects/fetchProjects.js";
 import insertProjects from "./RDS/insertProjects.js";
-import { processProjectIngestion} from "../ingestProject/index.js";
 
+const lambdaClient = new LambdaClient({ region: "us-west-2" });
 
 export const handler = async (event: APIGatewayEvent) => {
   let client;
@@ -32,7 +32,6 @@ export const handler = async (event: APIGatewayEvent) => {
     const projectsWithCursors = await insertProjects(client, projects);
 
     if(process.env.NODE_ENV === "production") {
-      // 2. Trigger worker lambdas for each project
       const invocations = projectsWithCursors.map((project) =>
         invokeProjectIngestionLambda(project.name, project.last_cursor || '')
       );
@@ -40,6 +39,7 @@ export const handler = async (event: APIGatewayEvent) => {
       await Promise.all(invocations);
       console.log(`Triggered ingestion for ${projects.length} projects.`);
     } else {
+      const { processProjectIngestion } = await import("../ingestProject/index.js");
       const invocations = projectsWithCursors.map(async (project) => {
         try {
           const result = await processProjectIngestion(project.name, project.last_cursor || '');
@@ -79,9 +79,6 @@ export const handler = async (event: APIGatewayEvent) => {
     }
   }
 };
-
-const lambdaClient = new LambdaClient({ region: "us-west-2" });
-
 
 async function invokeProjectIngestionLambda(projectName: string, last_cursor: string) {
   const command = new InvokeCommand({

@@ -22,7 +22,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       FunctionName: ingest-root-span-worker
-      Handler: dist/lambdas/ingest_project/index.handler
+      Handler: dist/lambdas/ingestProject/index.handler
       Events:
         Api:
           Type: Api
