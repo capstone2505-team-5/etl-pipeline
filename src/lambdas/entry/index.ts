@@ -4,7 +4,7 @@ import getPhoenixKey from "../../shared/getPhoenixKey.js";
 import createDbClient from "../../shared/createDbClient.js"
 import fetchProjects from "./fetchProjects/fetchProjects.js";
 import insertProjects from "./RDS/insertProjects.js";
-import { processProjectIngestion} from "../ingest_project/index.js";
+import { processProjectIngestion} from "../ingestProject/index.js";
 
 
 export const handler = async (event: APIGatewayEvent) => {
