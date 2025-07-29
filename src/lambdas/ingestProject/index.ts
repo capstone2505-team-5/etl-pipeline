@@ -19,7 +19,7 @@ export const processProjectIngestion = async (projectName: string, lastCursor: s
     let hasNextPage = true;
     let currentCursor = lastCursor;
     let totalProcessed = 0;
-    const maxIterations = 100; // Prevent infinite loops
+    const maxIterations = 25; // Prevent infinite loops
     let iterations = 0;
 
     while (hasNextPage && iterations < maxIterations) {

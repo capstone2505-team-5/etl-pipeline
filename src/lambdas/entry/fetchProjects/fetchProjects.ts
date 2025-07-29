@@ -25,8 +25,6 @@ async function fetchProjects(phoenixKey: string): Promise<Project[]> {
 
   const projects = formatProjects(json);
 
-  console.log(projects)
-
   if (json.errors) {
     console.error("Error fetching projects:", json.errors);
     throw new Error("Failed to fetch projects");

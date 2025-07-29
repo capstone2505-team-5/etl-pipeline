@@ -17,6 +17,9 @@ const insertProjects = async (client: Client, projects: Project[]): Promise<Proj
       ON CONFLICT (id) DO UPDATE SET
         root_span_count = EXCLUDED.root_span_count,
         updated_at = EXCLUDED.updated_at
+      WHERE 
+        projects.root_span_count IS DISTINCT FROM EXCLUDED.root_span_count OR
+        projects.updated_at IS DISTINCT FROM EXCLUDED.updated_at
       RETURNING name, last_cursor
     `;
 
@@ -32,6 +35,7 @@ const insertProjects = async (client: Client, projects: Project[]): Promise<Proj
     const result = await client.query(insertQuery, params);
     await client.query('COMMIT');
     console.log('Project data successfully added');
+    console.log('Number of new projects or projects with new root spans: ', result.rows.length);
 
     return result.rows; // [{ id: string, last_cursor: string | null }, ...]
   } catch (e) {
