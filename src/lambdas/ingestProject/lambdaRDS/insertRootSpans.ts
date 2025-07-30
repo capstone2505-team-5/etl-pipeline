@@ -13,7 +13,7 @@ const insertRootSpans = async (client: Client, rootSpans: RootSpan[]): Promise<v
   try {
     const insertQuery = `
       INSERT INTO root_spans (
-        id, trace_id, input, output, project_name, span_name, start_time, end_time
+        id, trace_id, input, output, project_id, span_name, start_time, end_time
       )
       VALUES ${rootSpans.map((_, i) => `(
         $${i * 8 + 1}, $${i * 8 + 2}, $${i * 8 + 3}, $${i * 8 + 4},
@@ -27,7 +27,7 @@ const insertRootSpans = async (client: Client, rootSpans: RootSpan[]): Promise<v
       span.traceId,
       span.input,
       span.output,
-      span.projectName,
+      span.projectId,
       span.spanName,
       span.startTime,
       span.endTime,
@@ -37,7 +37,7 @@ const insertRootSpans = async (client: Client, rootSpans: RootSpan[]): Promise<v
     await client.query('COMMIT');
     console.log('Root span data successfully added');
   } catch (e) {
-    console.log('Root span data addition failed.')
+    console.log('Root span data addition failed.');
     await client.query('ROLLBACK');
     throw e;
   }

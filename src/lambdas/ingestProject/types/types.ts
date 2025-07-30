@@ -5,16 +5,22 @@ export interface RootSpan {
   endTime: string | null;        // or Date
   input: string;
   output: string;
-  projectName: string;
+  projectId: string;
   spanName: string | null;
 }
 
-export interface GraphQLResponse {
+export interface FetchRootSpanReturn {
+  rootSpans: RootSpan[];
+  endCursor: string;
+  hasNextPage: boolean;
+}
+
+export interface GraphQLRootSpanResponse {
   data?: {
     projects?: {
       edges?: Array<{
         node?: {
-          name?: string;
+          id?: string;
           spans?: {
             edges?: Array<{
               node?: {
@@ -27,6 +33,10 @@ export interface GraphQLResponse {
                 spanKind?: string;
               };
             }>;
+            pageInfo?: {
+              endCursor: string;
+              hasNextPage: boolean;
+            }
           };
         };
       }>;
@@ -36,9 +46,13 @@ export interface GraphQLResponse {
 
 export interface ProjectEdge {
   node?: {
-    name?: string;
+    id?: string;
     spans?: {
       edges?: SpanEdge[];
+      pageInfo?: {
+        endCursor: string;
+        hasNextPage: boolean;
+      }
     };
   };
 }
@@ -58,6 +72,7 @@ export interface SpanEdge {
     startTime?: string;
     endTime?: string;
     name?: string;
+    id?: string;
     spanKind?: string;
   };
 }
