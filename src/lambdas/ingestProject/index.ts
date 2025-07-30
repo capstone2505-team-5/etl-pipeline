@@ -1,11 +1,11 @@
-import { APIGatewayEvent } from 'aws-lambda';
+import { APIGatewayEvent, Context } from 'aws-lambda';
 import getPhoenixKey from "../../shared/getPhoenixKey.js";
 import insertRootSpans from "./lambdaRDS/insertRootSpans.js";
 import createDbClient from "../../shared/createDbClient.js";
 import fetchProject from './lambdaFetchRootSpans/fetchRootSpans.js';
 import updateProjectCursor from './lambdaRDS/updateProjectCursor.js';
 
-export const processProjectIngestion = async (projectName: string, lastCursor: string) => {
+export const processProjectIngestion = async (projectName: string, lastCursor: string, context?: Context) => {
   let client;
   console.log('project name: ', projectName);
   console.log('lastCursor: ', lastCursor);
@@ -22,7 +22,31 @@ export const processProjectIngestion = async (projectName: string, lastCursor: s
     const maxIterations = 25; // Prevent infinite loops
     let iterations = 0;
 
+    // Track start time for local timeout (5 minutes = 300000ms)
+    const startTime = Date.now();
+    const localTimeoutMs = 5 * 60 * 1000; // 5 minutes
+
+
     while (hasNextPage && iterations < maxIterations) {
+
+      if (context) {
+        const remainingTime = context.getRemainingTimeInMillis();
+        if (remainingTime < 15000) {
+          console.warn('Approaching timeout, stopping gracefully');
+          if (client) await client.end();
+          return { success: true, resumeCursor: currentCursor };
+        }
+      } else {
+        // Local development - simple time check
+        const elapsed = Date.now() - startTime;
+        if (elapsed > localTimeoutMs) {
+          console.warn('Local timeout reached (5 minutes), stopping gracefully');
+          if (client) await client.end();
+          return { success: true, resumeCursor: currentCursor };
+        }
+      }
+
+
       iterations++;
       console.log(`Fetching batch with cursor: ${currentCursor}`);
       const project = await fetchProject(phoenixKey, projectName, currentCursor);
@@ -68,7 +92,7 @@ export const processProjectIngestion = async (projectName: string, lastCursor: s
   }
 };
 
-export const handler = async (event: APIGatewayEvent) => {
+export const handler = async (event: APIGatewayEvent, context: Context) => {
   let projectName = '';
   let lastCursor = '';
 
@@ -99,7 +123,7 @@ export const handler = async (event: APIGatewayEvent) => {
   }
 
   try {
-    const result = await processProjectIngestion(projectName, lastCursor);
+    const result = await processProjectIngestion(projectName, lastCursor, context);
     
     // Return success response with summary
     return {
