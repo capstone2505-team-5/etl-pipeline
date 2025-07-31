@@ -13,7 +13,7 @@ export const handler = async (event: APIGatewayEvent) => {
   try {
     const phoenixKey = await getPhoenixKey();
 
-    client = createDbClient();
+    client = await createDbClient();
     await client.connect();
 
     let projects = await fetchProjects(phoenixKey);
@@ -82,7 +82,7 @@ export const handler = async (event: APIGatewayEvent) => {
 
 async function invokeProjectIngestionLambda(projectName: string, last_cursor: string) {
   const command = new InvokeCommand({
-    FunctionName: process.env.SPAN_INGESTION_FUNCTION_NAME,
+    FunctionName: process.env.SPAN_INGESTION_ARN,
     InvocationType: "Event", // async invocation
     Payload: Buffer.from(JSON.stringify({ projectName, lastCursor: last_cursor })),
   });
