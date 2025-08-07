@@ -5,6 +5,7 @@ Globals:
   Function:
     Runtime: nodejs22.x
     Timeout: 300
+    MemorySize: 1024  # Increase default memory to 1GB
     Environment:
       Variables:
         NODE_ENV: ""
@@ -23,6 +24,7 @@ Resources:
     Properties:
       FunctionName: ingest-root-span-worker
       Handler: dist/lambdas/ingestProject/index.handler
+      MemorySize: 2048  # 2GB for span ingestion
       Events:
         Api:
           Type: Api
@@ -34,6 +36,7 @@ Resources:
     Type: AWS::Serverless::Function
     Properties:
       Handler: dist/lambdas/entry/index.handler
+      MemorySize: 1536  # 1.5GB for project fetching
       Events:
         Api:
           Type: Api
